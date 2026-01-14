@@ -1,0 +1,9 @@
+model_name: padim
+class_path: anomalib.models.Padim
+init_args:
+  backbone: resnet18
+  layers:
+    - layer1
+    - layer2
+    - layer3
+result_dirname: Padim

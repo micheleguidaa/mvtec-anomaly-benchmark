@@ -1,0 +1,10 @@
+model_name: fastflow
+class_path: anomalib.models.Fastflow
+init_args:
+  backbone: resnet18
+  pre_trained: true
+  flow_steps: 8
+  conv3x3_only: false
+  hidden_ratio: 1.0
+max_epochs: 100
+result_dirname: Fastflow

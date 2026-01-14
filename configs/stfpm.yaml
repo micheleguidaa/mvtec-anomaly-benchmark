@@ -1,0 +1,10 @@
+model_name: stfpm
+class_path: anomalib.models.Stfpm
+init_args:
+  backbone: resnet18
+  layers:
+    - layer1
+    - layer2
+    - layer3
+max_epochs: 100
+result_dirname: Stfpm

@@ -1,0 +1,23 @@
+# =============================================================================
+# MVTec Anomaly Benchmark - Requirements
+# =============================================================================
+# Core anomaly detection library
+anomalib>=2.2.0
+
+# Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Data processing & visualization
+numpy>=1.24.0
+matplotlib>=3.7.0
+Pillow>=9.5.0
+
+# Configuration
+PyYAML>=6.0
+
+# Web UI
+gradio>=4.0.0
+
+# HuggingFace Hub (for checkpoint download)
+huggingface_hub>=0.20.0
