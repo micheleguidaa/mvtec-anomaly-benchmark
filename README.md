@@ -42,11 +42,18 @@ pip install -r requirements.txt
 
 ## 📥 Download Dataset
 
+**Interactive Downloader:**
+
 ```bash
 python scripts/download_mvtec.py
 ```
 
-This downloads the MVTec AD dataset (~5GB) to `data/MVTecAD/`.
+The script features an **interactive menu** where you can choose between:
+
+1.  **Hugging Face** (Recommended - Fast): Downloads from `micguida1/mvtech_anomaly_detection`. Requires a Hugging Face account. The script will guide you through the login process if needed.
+2.  **HTTP Mirror** (Fallback): Downloads from the original public mirror (~5GB, slower). No login required.
+
+The dataset will be automatically extracted to `data/MVTecAD/`.
 
 ## ⬇️ Download Pre-trained Checkpoints
 
