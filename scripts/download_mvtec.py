@@ -29,8 +29,8 @@ def download_mvtec():
 
     print("\n--- BANCA DATI MVTEC AD - DOWNLOADER ---")
     print("Scegli il metodo di download:")
-    print("1. Hugging Face (Veloce - Richiede Login)")
-    print("2. HTTP Mirror (Lento ~5GB - No Login)")
+    print("1. Hugging Face (Recommended - Fast)")
+    print("2. HTTP Mirror (Slower ~5GB)")
     print("q. Esci")
     
     while True:
@@ -53,51 +53,32 @@ def download_mvtec():
         extract_dataset(target_dir, archive_name)
 
 def download_huggingface(target_dir, archive_name):
-    print("\n--- Metodo: Hugging Face ---")
+    print("\n--- Method: Hugging Face ---")
     try:
-        from huggingface_hub import hf_hub_download, login
+        from huggingface_hub import hf_hub_download
     except ImportError:
-        print("Libreria 'huggingface_hub' non trovata. Installing...")
+        print("Library 'huggingface_hub' not found. Installing...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "huggingface_hub"])
-        from huggingface_hub import hf_hub_download, login
+        from huggingface_hub import hf_hub_download
 
-    print("Tentativo di accesso...")
     try:
-        # Verifica accesso provando a scaricare info (o file piccolo/header)
-        # Usiamo force_download=False per check veloce, ma se fallisce gestiamo
-        hf_hub_download(
+        print("Starting download from Hugging Face (repo: micguida1/mvtech_anomaly_detection)...")
+        filepath = hf_hub_download(
             repo_id="micguida1/mvtech_anomaly_detection",
             filename="mvtec_anomaly_detection.tar.xz",
             repo_type="dataset",
             local_dir=target_dir,
             local_dir_use_symlinks=False
         )
-        print("Login valido o cache presente.")
-    except Exception as e:
-        print(f"\nAccesso non riuscito o file non trovato ({e}).")
-        print("È necessario il login a Hugging Face (se il repo è privato).")
-        print("Inserisci il tuo token (lo trovi su https://huggingface.co/settings/tokens)")
-        login()
-    
-    try:
-        print("Avvio download da Hugging Face (repo: micguida1/mvtech_anomaly_detection)...")
-        filepath = hf_hub_download(
-            repo_id="micguida1/mvtech_anomaly_detection",
-            filename="mvtec_anomaly_detection.tar.xz",
-            repo_type="dataset",
-            local_dir=target_dir,
-            local_dir_use_symlinks=False,
-            force_download=True # Forza riscaricamento per evitare file corrotti in cache
-        )
-        # Fix path se necessario
+        # Fix path if needed
         if os.path.exists(filepath) and filepath != archive_name:
             if os.path.exists(archive_name):
                 os.remove(archive_name)
             os.rename(filepath, archive_name)
-        print("Download completato!")
+        print("Download completed!")
         return True
     except Exception as e:
-        print(f"Errore download HF: {e}")
+        print(f"HF download error: {e}")
         return False
 
 def download_http(archive_name):

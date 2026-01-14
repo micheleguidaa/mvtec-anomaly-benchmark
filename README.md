@@ -14,14 +14,17 @@ license: mit
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Anomalib](https://img.shields.io/badge/anomalib-2.2.0-green.svg)](https://github.com/openvinotoolkit/anomalib)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/micguida1/mvtec-anomaly-benchmark)
 
 A comprehensive benchmark for anomaly detection models on the [MVTec AD dataset](https://www.mvtec.com/company/research/datasets/mvtec-ad) using [Anomalib](https://github.com/openvinotoolkit/anomalib).
+
+**🚀 [Try the Live Demo on Hugging Face Spaces](https://huggingface.co/spaces/micguida1/mvtec-anomaly-benchmark)**
 
 ## 🎯 Features
 
 - **Multiple Models**: PatchCore, EfficientAD, FastFlow, STFPM, PaDiM
 - **Full Benchmark**: Train and evaluate on all 15 MVTec categories
-- **Interactive Demo**: Gradio UI for real-time anomaly detection
+- **Interactive Demo**: [Gradio UI for real-time anomaly detection](https://huggingface.co/spaces/micguida1/mvtec-anomaly-benchmark)
 - **Easy Configuration**: YAML-based model configs
 
 ## 📦 Installation
@@ -50,8 +53,8 @@ python scripts/download_mvtec.py
 
 The script features an **interactive menu** where you can choose between:
 
-1.  **Hugging Face** (Recommended - Fast): Downloads from `micguida1/mvtech_anomaly_detection`. Requires a Hugging Face account. The script will guide you through the login process if needed.
-2.  **HTTP Mirror** (Fallback): Downloads from the original public mirror (~5GB, slower). No login required.
+1.  **Hugging Face** (Recommended - Fast): Downloads from `micguida1/mvtech_anomaly_detection`. No login required.
+2.  **HTTP Mirror** (Fallback): Downloads from the original public mirror (~5GB, slower).
 
 The dataset will be automatically extracted to `data/MVTecAD/`.
 
@@ -168,4 +171,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Anomalib](https://github.com/openvinotoolkit/anomalib) - Anomaly detection library
 - [MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad) - Dataset
+
+## 💻 Computational Environment
+
+All experiments were conducted on a cloud machine rented via [Lightning.ai](https://lightning.ai/) with the following specifications:
+
+| Component | Specification |
+|-----------|---------------|
+| **CPU** | Intel® Xeon® Platinum 8468 (16 vCPUs, 8 physical cores @ 2.1 GHz) |
+| **RAM** | 196 GB |
+| **GPU** | NVIDIA H200 (141 GB HBM3 VRAM) |
+
+This high-performance setup enabled fast training and evaluation of all models across the entire MVTec AD dataset.
 
