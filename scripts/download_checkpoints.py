@@ -30,7 +30,7 @@ from core.config import MVTEC_CATEGORIES, DIR_RESULTS, get_available_models
 # =============================================================================
 
 # TODO: Replace with your HuggingFace Hub repository
-HF_REPO_ID = "YOUR_USERNAME/mvtec-anomaly-checkpoints"
+HF_REPO_ID = "micguida1/mvtec-anomaly-checkpoints"
 
 # Mapping from model name to result directory name
 MODEL_TO_DIRNAME = {

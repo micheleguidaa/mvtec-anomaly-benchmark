@@ -17,7 +17,7 @@ Pillow>=9.5.0
 PyYAML>=6.0
 
 # Web UI
-gradio>=4.0.0
+gradio>=6.3.0
 
 # HuggingFace Hub (for checkpoint download)
 huggingface_hub>=0.20.0

@@ -14,7 +14,16 @@ Run with: python app.py
 from gradio_ui import create_app, launch_app
 
 
+
 if __name__ == "__main__":
+    # Check for checkpoints and download if missing
+    import os
+    import subprocess
+    import sys
+    
+    print("🔄 Checking for model checkpoints...")
+    subprocess.run([sys.executable, "scripts/download_checkpoints.py"], check=False)
+
     launch_app(
         server_name="0.0.0.0",  # Allow external access
         server_port=7860,

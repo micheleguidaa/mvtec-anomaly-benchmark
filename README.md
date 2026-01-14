@@ -1,3 +1,14 @@
+---
+title: MVTec Anomaly Benchmark
+emoji: 🔍
+colorFrom: blue
+colorTo: purple
+sdk: gradio
+sdk_version: 6.3.0
+app_file: app.py
+pinned: false
+license: mit
+---
 # MVTec Anomaly Benchmark
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
