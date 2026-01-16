@@ -4,8 +4,8 @@ Script to create a sample_images directory with representative test images
 from the MVTecAD dataset for use in the Gradio web UI.
 
 For each category, it copies:
-- 2 good (normal) images
-- 2-3 images from each anomaly type (up to 3 anomaly types per category)
+- 1 good (normal) image
+- 2 images from each anomaly type (up to 4 anomaly types per category)
 """
 
 import os
@@ -25,9 +25,9 @@ CATEGORIES = [
 ]
 
 # Number of samples per type
-NUM_GOOD_SAMPLES = 2
+NUM_GOOD_SAMPLES = 1
 NUM_ANOMALY_SAMPLES_PER_TYPE = 2
-MAX_ANOMALY_TYPES = 3  # Maximum number of different anomaly types to include
+MAX_ANOMALY_TYPES = 4  # Maximum number of different anomaly types to include
 
 
 def get_anomaly_types(category_path: Path) -> list:
