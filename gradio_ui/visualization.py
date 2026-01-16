@@ -264,10 +264,12 @@ def create_comparison_visualization(original: np.ndarray, results_list: list) ->
             axes[row, 3].set_title(col_titles[3], fontsize=12, fontweight='bold')
         
         # Add model name as row label on the left using annotation
-        # Removing numerical score as requested
-        axes[row, 0].annotate(f"{model_name}\n{status}", 
+        # Show model name, score and status
+        status_color = 'red' if display_score > 0.5 else 'green'
+        axes[row, 0].annotate(f"{model_name}\nScore: {display_score:.2f}\n{status}", 
                               xy=(-0.1, 0.5), xycoords='axes fraction',
-                              fontsize=11, fontweight='bold', ha='right', va='center')
+                              fontsize=11, fontweight='bold', ha='right', va='center',
+                              color=status_color)
     
     # Add colorbar
     cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])

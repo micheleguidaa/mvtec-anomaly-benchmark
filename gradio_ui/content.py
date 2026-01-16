@@ -20,26 +20,11 @@ Test how well the anomaly detection model captures defects:
 1. **Upload a GOOD image** (normal, without defects)
 2. **Use the brush to draw** artificial defects (scratches, stains, cracks, etc.)
 3. **Click Analyze** to see if the heatmap detects your drawn defects
-
-> 💡 **Tip:** Use different brush sizes and colors to simulate various defect types!
 """
 
-BRUSH_COLORS_INFO = """
----
-**Brush Colors:**
-- ⚫ Black - Dark scratches, contamination
-- 🔴 Red - Highlighted defects
-- 🟤 Brown - Rust, stains
-- ⚪ Gray/White - Light marks
-"""
+BRUSH_COLORS_INFO = ""
 
-HEATMAP_INTERPRETATION = """
----
-**How to interpret:**
-- 🔴 **Red areas** in heatmap = High anomaly probability (model detected something)
-- 🔵 **Blue areas** = Normal regions
-- Compare drawn defects with heatmap response!
-"""
+HEATMAP_INTERPRETATION = ""
 
 # Compare Models Tab Instructions
 COMPARE_MODELS_INSTRUCTIONS = """
@@ -47,10 +32,8 @@ COMPARE_MODELS_INSTRUCTIONS = """
 
 Compare how different anomaly detection models perform on the same image:
 1. **Upload an image** (normal or with defects)
-2. **Select 2-4 models** to compare
+2. **Select 2-5 models** to compare
 3. **Click Compare** to see heatmaps side-by-side
-
-> 💡 **Tip:** This helps identify which model is most sensitive to certain defect types!
 """
 
 # Learn About Models Tab Content

@@ -35,7 +35,7 @@ def create_compare_tab(available_models: list, initial_categories: list):
                     height=300
                 )
                 
-                gr.Markdown("### 🧠 Select Models (2-4)")
+                gr.Markdown("### 🧠 Select Models (2-5)")
                 
                 compare_model_checkboxes = gr.CheckboxGroup(
                     choices=available_models,

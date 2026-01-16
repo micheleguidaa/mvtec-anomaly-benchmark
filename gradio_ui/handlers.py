@@ -164,8 +164,8 @@ def predict_compare(image, selected_models: list, category: str):
     if not selected_models or len(selected_models) < 2:
         return None, "⚠️ Please select at least 2 models to compare"
     
-    if len(selected_models) > 4:
-        return None, "⚠️ Please select at most 4 models"
+    if len(selected_models) > 5:
+        return None, "⚠️ Please select at most 5 models"
     
     try:
         # Save temp image if needed
@@ -204,29 +204,7 @@ def predict_compare(image, selected_models: list, category: str):
         # Create comparison visualization
         viz_image = create_comparison_visualization(original, results_list)
         
-        # Create summary text
-        summary_lines = ["### 📊 Comparison Results\n"]
-        summary_lines.append("| Model | Score | Status |")
-        summary_lines.append("|-------|-------|--------|")
-        
-        for result in results_list:
-            if result.get('error'):
-                summary_lines.append(f"| {result['model_name']} | ❌ Error | {result['error'][:30]}... |")
-            else:
-                score = result['score']
-                model_name = result['model_name']
-                
-                # Scale if EfficientAD
-                display_score = score
-                if "efficientad" in model_name.lower():
-                    display_score = scale_efficientad_score(score)
-                
-                status = "🔴 Anomaly" if display_score > 0.5 else "🟢 Normal"
-                summary_lines.append(f"| {model_name} | {display_score:.4f} | {status} |")
-        
-        summary = "\n".join(summary_lines)
-        
-        return viz_image, summary
+        return viz_image, ""
         
     except Exception as e:
         return None, f"❌ Error: {str(e)}"

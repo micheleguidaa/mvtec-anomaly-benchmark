@@ -25,6 +25,9 @@ A comprehensive benchmark for anomaly detection models on the [MVTec AD dataset]
 - **Multiple Models**: PatchCore, EfficientAD, FastFlow, STFPM, PaDiM
 - **Full Benchmark**: Train and evaluate on all 15 MVTec categories
 - **Interactive Demo**: [Gradio UI for real-time anomaly detection](https://huggingface.co/spaces/micguida1/mvtec-anomaly-benchmark)
+- **Sample Image Gallery**: Browse and select sample images from MVTec dataset with automatic category detection
+- **Draw Defects**: Draw artificial defects on images and see how models detect them
+- **Model Comparison**: Compare multiple models side-by-side on the same image
 - **Easy Configuration**: YAML-based model configs
 
 ## 📦 Installation
@@ -104,6 +107,16 @@ python app.py
 ```
 
 The demo will be available at `http://localhost:7860`.
+
+#### Demo Features
+
+- **📤 Upload Image**: Upload any image and analyze it for anomalies
+- **✏️ Draw Defects**: Load a sample image and draw artificial defects to test detection
+- **🔄 Compare Models**: Compare multiple models side-by-side on the same image
+- **📚 Learn**: Educational content about each anomaly detection model
+- **📊 Metrics**: View detailed performance metrics for each model
+
+**Sample Image Gallery**: Each tab includes a gallery of sample images from the MVTec dataset. Click on any image to load it and the category will be automatically selected.
 
 ## 📁 Project Structure
 

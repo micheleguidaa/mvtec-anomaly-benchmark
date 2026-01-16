@@ -61,6 +61,21 @@ def get_checkpoint_hf_path(model_name: str, category: str) -> str:
     return f"{dirname}/MVTecAD/{category}/latest/weights/lightning/model.ckpt"
 
 
+def get_metrics_hf_path(model_name: str, category: str) -> str:
+    """
+    Returns the path of the metrics.json file in the HF repository.
+    
+    Args:
+        model_name: Name of the model
+        category: MVTec category
+        
+    Returns:
+        Path string relative to HF repo root
+    """
+    dirname = MODEL_TO_DIRNAME.get(model_name, model_name.capitalize())
+    return f"{dirname}/MVTecAD/{category}/latest/metrics.json"
+
+
 def get_local_checkpoint_path(model_name: str, category: str) -> Path:
     """
     Returns the local path where the checkpoint should be stored.
@@ -74,6 +89,21 @@ def get_local_checkpoint_path(model_name: str, category: str) -> Path:
     """
     dirname = MODEL_TO_DIRNAME.get(model_name, model_name.capitalize())
     return DIR_RESULTS / dirname / "MVTecAD" / category / "latest" / "weights" / "lightning" / "model.ckpt"
+
+
+def get_local_metrics_path(model_name: str, category: str) -> Path:
+    """
+    Returns the local path where the metrics.json should be stored.
+    
+    Args:
+        model_name: Name of the model
+        category: MVTec category
+        
+    Returns:
+        Path object for local metrics file
+    """
+    dirname = MODEL_TO_DIRNAME.get(model_name, model_name.capitalize())
+    return DIR_RESULTS / dirname / "MVTecAD" / category / "latest" / "metrics.json"
 
 
 def download_checkpoint(model_name: str, category: str, force: bool = False) -> bool:
@@ -115,13 +145,52 @@ def download_checkpoint(model_name: str, category: str, force: bool = False) -> 
         return False
 
 
+def download_metrics(model_name: str, category: str, force: bool = False) -> bool:
+    """
+    Downloads metrics.json for a model/category from HuggingFace Hub.
+    
+    Args:
+        model_name: Name of the model
+        category: MVTec category
+        force: If True, re-download even if exists
+        
+    Returns:
+        True if downloaded/exists, False if failed
+    """
+    local_path = get_local_metrics_path(model_name, category)
+    
+    # Skip if already exists
+    if local_path.exists() and not force:
+        return True
+    
+    hf_path = get_metrics_hf_path(model_name, category)
+    
+    try:
+        # Create parent directories
+        local_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Download from HF Hub
+        downloaded_path = hf_hub_download(
+            repo_id=HF_REPO_ID,
+            filename=hf_path,
+            local_dir=DIR_RESULTS,
+            local_dir_use_symlinks=False,
+        )
+        
+        return True
+        
+    except Exception as e:
+        # Metrics file is optional, don't print error
+        return False
+
+
 def download_all_checkpoints(
     models: list[str] = None,
     categories: list[str] = None,
     force: bool = False
 ) -> dict:
     """
-    Downloads checkpoints for specified models and categories.
+    Downloads checkpoints and metrics for specified models and categories.
     
     Args:
         models: List of model names (None = all available)
@@ -136,11 +205,11 @@ def download_all_checkpoints(
     if categories is None:
         categories = MVTEC_CATEGORIES
     
-    stats = {"downloaded": 0, "existed": 0, "failed": 0}
+    stats = {"downloaded": 0, "existed": 0, "failed": 0, "metrics_downloaded": 0}
     
     total = len(models) * len(categories)
     
-    print(f"📦 Downloading checkpoints from: {HF_REPO_ID}")
+    print(f"📦 Downloading checkpoints and metrics from: {HF_REPO_ID}")
     print(f"   Models: {', '.join(models)}")
     print(f"   Categories: {len(categories)} total")
     print()
@@ -156,6 +225,10 @@ def download_all_checkpoints(
                     stats["downloaded"] += 1
                 else:
                     stats["failed"] += 1
+                
+                # Also download metrics.json if available
+                if download_metrics(model, category, force):
+                    stats["metrics_downloaded"] += 1
                     
                 pbar.update(1)
     
@@ -179,6 +252,7 @@ def check_checkpoint_exists(model_name: str, category: str) -> bool:
 def ensure_checkpoint(model_name: str, category: str) -> Path:
     """
     Ensures a checkpoint exists, downloading if necessary.
+    Also downloads metrics.json if available.
     
     This is the main function to call from inference/app code.
     
@@ -195,11 +269,15 @@ def ensure_checkpoint(model_name: str, category: str) -> Path:
     local_path = get_local_checkpoint_path(model_name, category)
     
     if local_path.exists():
+        # Also try to download metrics if not present
+        download_metrics(model_name, category)
         return local_path
     
     print(f"⬇ Checkpoint not found locally. Downloading {model_name}/{category}...")
     
     if download_checkpoint(model_name, category):
+        # Also download metrics
+        download_metrics(model_name, category)
         if local_path.exists():
             print(f"✓ Downloaded successfully")
             return local_path
@@ -258,8 +336,9 @@ def main():
     # Report
     print()
     print("=" * 50)
-    print(f"✓ Downloaded: {stats['downloaded']}")
+    print(f"✓ Checkpoints downloaded: {stats['downloaded']}")
     print(f"○ Already existed: {stats['existed']}")
+    print(f"📊 Metrics downloaded: {stats['metrics_downloaded']}")
     if stats['failed'] > 0:
         print(f"✗ Failed: {stats['failed']}")
     print("=" * 50)
