@@ -26,15 +26,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-          # Track binary files with LFS
-          git lfs track "*.png"
-          git lfs track "*.jpg"
-          git lfs track "*.jpeg"
-          git lfs track "*.gif"
-          git lfs track "*.webp"
-
-          # Migrate existing files to LFS
-          git lfs migrate import --include="*.png,*.jpg,*.jpeg,*.gif,*.webp" --everything
+          # Migrate existing files to LFS (--yes to skip confirmation)
+          git lfs migrate import --include="*.png,*.jpg,*.jpeg,*.gif,*.webp" --everything --yes
 
           # Push to HF
           git remote add hf https://micguida1:$HF_TOKEN@huggingface.co/spaces/micguida1/mvtec-anomaly-benchmark
