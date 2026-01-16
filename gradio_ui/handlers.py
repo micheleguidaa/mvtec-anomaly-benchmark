@@ -256,33 +256,150 @@ def get_common_categories(model_names: list) -> list:
     return list(common) if common else MVTEC_CATEGORIES
 
 
-def update_categories(model_name: str):
+def update_categories(model_name: str, current_category: str = None):
     """
     Updates available categories based on selected model.
+    Keeps the current category if it's available for the new model.
     
     Args:
         model_name: Selected model name
+        current_category: Currently selected category to preserve if possible
     
     Returns:
         Updated Gradio Dropdown component
     """
     trained = get_trained_categories(model_name)
     if trained:
+        # Keep current category if it's available in the new model
+        if current_category and current_category in trained:
+            return gr.Dropdown(choices=trained, value=current_category)
         return gr.Dropdown(choices=trained, value=trained[0])
+    # Keep current category if using all categories
+    if current_category and current_category in MVTEC_CATEGORIES:
+        return gr.Dropdown(choices=MVTEC_CATEGORIES, value=current_category)
     return gr.Dropdown(choices=MVTEC_CATEGORIES, value="bottle")
 
 
-def update_compare_categories(selected_models: list):
+def update_compare_categories(selected_models: list, current_category: str = None):
     """
     Update categories dropdown based on selected models.
+    Keeps the current category if it's available for all selected models.
     
     Args:
         selected_models: List of selected model names
+        current_category: Currently selected category to preserve if possible
     
     Returns:
         Updated Gradio Dropdown component
     """
     common = get_common_categories(selected_models)
     if common:
+        # Keep current category if it's in common categories
+        if current_category and current_category in common:
+            return gr.Dropdown(choices=common, value=current_category)
         return gr.Dropdown(choices=common, value=common[0])
+    # Keep current category if using all categories
+    if current_category and current_category in MVTEC_CATEGORIES:
+        return gr.Dropdown(choices=MVTEC_CATEGORIES, value=current_category)
     return gr.Dropdown(choices=MVTEC_CATEGORIES, value="bottle")
+
+
+def get_sample_images() -> list:
+    """
+    Returns a list of sample images from the MVTecAD test set.
+    
+    Returns:
+        List of tuples (image_path, label) for gallery display
+    """
+    from core import DIR_DATASET
+    
+    samples = []
+    
+    for category in MVTEC_CATEGORIES:
+        test_dir = DIR_DATASET / category / "test"
+        if not test_dir.exists():
+            continue
+        
+        # Get all defect types for this category
+        for defect_type in test_dir.iterdir():
+            if not defect_type.is_dir():
+                continue
+            
+            # Get first image from each defect type
+            images = list(defect_type.glob("*.png"))
+            if images:
+                img_path = str(images[0])
+                label = f"{category}/{defect_type.name}"
+                samples.append((img_path, label))
+    
+    return samples
+
+
+def get_category_from_sample(image_path_or_label: str) -> str:
+    """
+    Extracts category from a sample image path or gallery label.
+    
+    Args:
+        image_path_or_label: Path to the sample image or gallery label (format: category/defect_type)
+    
+    Returns:
+        Category name extracted from the path or label
+    """
+    if image_path_or_label is None:
+        return "bottle"
+    
+    path_str = str(image_path_or_label)
+    
+    # First try: check if it's a label format "category/defect_type"
+    for category in MVTEC_CATEGORIES:
+        if path_str.startswith(f"{category}/") or path_str == category:
+            return category
+    
+    # Second try: check if category is in the path
+    for category in MVTEC_CATEGORIES:
+        if f"/{category}/" in path_str or f"\\{category}\\" in path_str:
+            return category
+    
+    return "bottle"
+
+
+def on_sample_select(evt: gr.SelectData, current_model: str = None):
+    """
+    Handler for when a sample image is selected from the gallery.
+    Returns the image and updates the category.
+    
+    Args:
+        evt: Gradio SelectData event with image info
+        current_model: Currently selected model (for category validation)
+    
+    Returns:
+        Tuple of (image, category_dropdown_update)
+    """
+    if evt is None or evt.value is None:
+        return None, gr.Dropdown()
+    
+    # Get the image path from the event
+    image_data = evt.value
+    if isinstance(image_data, dict):
+        image_path = image_data.get("image", {}).get("path", "")
+    else:
+        image_path = str(image_data)
+    
+    # Extract category from path
+    category = get_category_from_sample(image_path)
+    
+    # Load the image
+    try:
+        img = np.array(Image.open(image_path).convert("RGB"))
+    except Exception:
+        return None, gr.Dropdown()
+    
+    # Get available categories for current model
+    if current_model:
+        trained = get_trained_categories(current_model)
+        if trained and category in trained:
+            return img, gr.Dropdown(choices=trained, value=category)
+        elif trained:
+            return img, gr.Dropdown(choices=trained, value=trained[0])
+    
+    return img, gr.Dropdown(choices=MVTEC_CATEGORIES, value=category)

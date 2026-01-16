@@ -11,6 +11,7 @@ from gradio_ui.content import (
     BRUSH_COLORS_INFO,
     HEATMAP_INTERPRETATION,
 )
+from gradio_ui.handlers import get_sample_images
 
 
 def create_draw_defects_tab(available_models: list, default_model: str, initial_categories: list):
@@ -82,6 +83,19 @@ def create_draw_defects_tab(available_models: list, default_model: str, initial_
                 sketch_result_text = gr.Markdown(value="", label="Results")
                 
                 gr.Markdown(HEATMAP_INTERPRETATION)
+        
+        # Sample Images Gallery
+        gr.Markdown("### 🖼️ Sample Images (click to load into editor)")
+        sketch_sample_gallery = gr.Gallery(
+            value=get_sample_images(),
+            label="Sample Images",
+            show_label=False,
+            columns=8,
+            rows=3,
+            height=350,
+            object_fit="cover",
+            allow_preview=False,
+        )
     
     return {
         "image_editor": image_editor,
@@ -91,4 +105,5 @@ def create_draw_defects_tab(available_models: list, default_model: str, initial_
         "result_image": sketch_result_image,
         "result_image": sketch_result_image,
         "result_text": sketch_result_text,
+        "sample_gallery": sketch_sample_gallery,
     }

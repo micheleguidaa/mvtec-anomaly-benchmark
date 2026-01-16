@@ -7,6 +7,7 @@ Provides the side-by-side model comparison interface.
 import gradio as gr
 
 from gradio_ui.content import COMPARE_MODELS_INSTRUCTIONS
+from gradio_ui.handlers import get_sample_images
 
 
 def create_compare_tab(available_models: list, initial_categories: list):
@@ -67,6 +68,19 @@ def create_compare_tab(available_models: list, initial_categories: list):
                 )
                 
                 compare_summary = gr.Markdown("*Select models and upload an image to compare*")
+        
+        # Sample Images Gallery
+        gr.Markdown("### 🖼️ Sample Images (click to select)")
+        compare_sample_gallery = gr.Gallery(
+            value=get_sample_images(),
+            label="Sample Images",
+            show_label=False,
+            columns=8,
+            rows=3,
+            height=350,
+            object_fit="cover",
+            allow_preview=False,
+        )
     
     return {
         "image_input": compare_image_input,
@@ -75,4 +89,5 @@ def create_compare_tab(available_models: list, initial_categories: list):
         "compare_btn": compare_btn,
         "result_image": compare_result_image,
         "summary": compare_summary,
+        "sample_gallery": compare_sample_gallery,
     }

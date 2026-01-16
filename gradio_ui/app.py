@@ -6,6 +6,8 @@ by assembling all tab components and wiring event handlers.
 """
 
 import gradio as gr
+import numpy as np
+from PIL import Image
 
 from core import get_available_models, MVTEC_CATEGORIES
 from gradio_ui.handlers import (
@@ -15,6 +17,7 @@ from gradio_ui.handlers import (
     predict_compare,
     update_categories,
     update_compare_categories,
+    get_category_from_sample,
 )
 from gradio_ui.content import MAIN_HEADER
 from gradio_ui.tabs import (
@@ -69,7 +72,7 @@ def create_app() -> gr.Blocks:
         # =========================================================================
         upload_components["model_dropdown"].change(
             fn=update_categories,
-            inputs=[upload_components["model_dropdown"]],
+            inputs=[upload_components["model_dropdown"], upload_components["category_dropdown"]],
             outputs=[upload_components["category_dropdown"]]
         )
         
@@ -86,18 +89,42 @@ def create_app() -> gr.Blocks:
             ]
         )
         
-        # Allow Enter key on image upload
-        upload_components["image_input"].change(
-            fn=predict,
-            inputs=[
-                upload_components["image_input"],
-                upload_components["model_dropdown"],
-                upload_components["category_dropdown"]
-            ],
-            outputs=[
-                upload_components["result_image"],
-                upload_components["result_text"]
-            ]
+        # Sample gallery selection handler for Upload tab
+        def on_upload_sample_select(evt: gr.SelectData, current_model: str, gallery_value: list):
+            """Handler for sample image selection in upload tab."""
+            if evt is None:
+                return None, gr.Dropdown()
+            
+            # Get the selected index and retrieve original path from gallery data
+            idx = evt.index
+            if gallery_value and idx < len(gallery_value):
+                item = gallery_value[idx]
+                if isinstance(item, tuple):
+                    image_path, label = item
+                    category = get_category_from_sample(label)
+                else:
+                    image_path = item
+                    category = get_category_from_sample(str(image_path))
+            else:
+                return None, gr.Dropdown()
+            
+            try:
+                img = np.array(Image.open(image_path).convert("RGB"))
+            except Exception as e:
+                print(f"Error loading image: {e}")
+                return None, gr.Dropdown()
+            
+            trained = get_trained_categories(current_model)
+            if trained and category in trained:
+                return img, gr.Dropdown(choices=trained, value=category)
+            elif trained:
+                return img, gr.Dropdown(choices=trained, value=trained[0])
+            return img, gr.Dropdown(choices=MVTEC_CATEGORIES, value=category)
+        
+        upload_components["sample_gallery"].select(
+            fn=on_upload_sample_select,
+            inputs=[upload_components["model_dropdown"], upload_components["sample_gallery"]],
+            outputs=[upload_components["image_input"], upload_components["category_dropdown"]]
         )
         
         # =========================================================================
@@ -105,7 +132,7 @@ def create_app() -> gr.Blocks:
         # =========================================================================
         sketch_components["model_dropdown"].change(
             fn=update_categories,
-            inputs=[sketch_components["model_dropdown"]],
+            inputs=[sketch_components["model_dropdown"], sketch_components["category_dropdown"]],
             outputs=[sketch_components["category_dropdown"]]
         )
         
@@ -122,12 +149,52 @@ def create_app() -> gr.Blocks:
             ]
         )
         
+        # Sample gallery selection handler for Sketch tab
+        def on_sketch_sample_select(evt: gr.SelectData, current_model: str, gallery_value: list):
+            """Handler for sample image selection in sketch tab."""
+            if evt is None:
+                return None, gr.Dropdown()
+            
+            # Get the selected index and retrieve original path from gallery data
+            idx = evt.index
+            if gallery_value and idx < len(gallery_value):
+                item = gallery_value[idx]
+                if isinstance(item, tuple):
+                    image_path, label = item
+                    category = get_category_from_sample(label)
+                else:
+                    image_path = item
+                    category = get_category_from_sample(str(image_path))
+            else:
+                return None, gr.Dropdown()
+            
+            try:
+                img = np.array(Image.open(image_path).convert("RGB"))
+                # For ImageEditor, return the image in the expected format
+                editor_value = {"background": img, "layers": [], "composite": img}
+            except Exception as e:
+                print(f"Error loading image: {e}")
+                return None, gr.Dropdown()
+            
+            trained = get_trained_categories(current_model)
+            if trained and category in trained:
+                return editor_value, gr.Dropdown(choices=trained, value=category)
+            elif trained:
+                return editor_value, gr.Dropdown(choices=trained, value=trained[0])
+            return editor_value, gr.Dropdown(choices=MVTEC_CATEGORIES, value=category)
+        
+        sketch_components["sample_gallery"].select(
+            fn=on_sketch_sample_select,
+            inputs=[sketch_components["model_dropdown"], sketch_components["sample_gallery"]],
+            outputs=[sketch_components["image_editor"], sketch_components["category_dropdown"]]
+        )
+        
         # =========================================================================
         # Event handlers for Tab 3 (Compare)
         # =========================================================================
         compare_components["model_checkboxes"].change(
             fn=update_compare_categories,
-            inputs=[compare_components["model_checkboxes"]],
+            inputs=[compare_components["model_checkboxes"], compare_components["category_dropdown"]],
             outputs=[compare_components["category_dropdown"]]
         )
         
@@ -142,6 +209,46 @@ def create_app() -> gr.Blocks:
                 compare_components["result_image"],
                 compare_components["summary"]
             ]
+        )
+        
+        # Sample gallery selection handler for Compare tab
+        def on_compare_sample_select(evt: gr.SelectData, selected_models: list, gallery_value: list):
+            """Handler for sample image selection in compare tab."""
+            if evt is None:
+                return None, gr.Dropdown()
+            
+            # Get the selected index and retrieve original path from gallery data
+            idx = evt.index
+            if gallery_value and idx < len(gallery_value):
+                item = gallery_value[idx]
+                if isinstance(item, tuple):
+                    image_path, label = item
+                    category = get_category_from_sample(label)
+                else:
+                    image_path = item
+                    category = get_category_from_sample(str(image_path))
+            else:
+                return None, gr.Dropdown()
+            
+            try:
+                img = np.array(Image.open(image_path).convert("RGB"))
+            except Exception as e:
+                print(f"Error loading image: {e}")
+                return None, gr.Dropdown()
+            
+            # Get common categories for selected models
+            from gradio_ui.handlers import get_common_categories
+            common = get_common_categories(selected_models)
+            if common and category in common:
+                return img, gr.Dropdown(choices=common, value=category)
+            elif common:
+                return img, gr.Dropdown(choices=common, value=common[0])
+            return img, gr.Dropdown(choices=MVTEC_CATEGORIES, value=category)
+        
+        compare_components["sample_gallery"].select(
+            fn=on_compare_sample_select,
+            inputs=[compare_components["model_checkboxes"], compare_components["sample_gallery"]],
+            outputs=[compare_components["image_input"], compare_components["category_dropdown"]]
         )
     
     return app
