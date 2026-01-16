@@ -285,31 +285,51 @@ def update_compare_categories(selected_models: list, current_category: str = Non
 def get_sample_images() -> list:
     """
     Returns a list of sample images from the MVTecAD test set.
-    
+
+    First tries DIR_DATASET (full dataset), then falls back to sample_images folder.
+
     Returns:
         List of tuples (image_path, label) for gallery display
     """
+    from pathlib import Path
     from core import DIR_DATASET
-    
+
     samples = []
-    
+
+    # Try full dataset first
     for category in MVTEC_CATEGORIES:
         test_dir = DIR_DATASET / category / "test"
         if not test_dir.exists():
             continue
-        
-        # Get all defect types for this category
+
         for defect_type in test_dir.iterdir():
             if not defect_type.is_dir():
                 continue
-            
-            # Get first image from each defect type
+
             images = list(defect_type.glob("*.png"))
             if images:
                 img_path = str(images[0])
                 label = f"{category}/{defect_type.name}"
                 samples.append((img_path, label))
-    
+
+    # Fallback to sample_images folder if no samples found
+    if not samples:
+        sample_dir = Path(__file__).parent.parent / "sample_images"
+        for category in MVTEC_CATEGORIES:
+            category_dir = sample_dir / category
+            if not category_dir.exists():
+                continue
+
+            for defect_type in category_dir.iterdir():
+                if not defect_type.is_dir():
+                    continue
+
+                images = list(defect_type.glob("*.png"))
+                if images:
+                    img_path = str(images[0])
+                    label = f"{category}/{defect_type.name}"
+                    samples.append((img_path, label))
+
     return samples
 
 
