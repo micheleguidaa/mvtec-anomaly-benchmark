@@ -73,7 +73,8 @@ def create_app() -> gr.Blocks:
         upload_components["model_dropdown"].change(
             fn=update_categories,
             inputs=[upload_components["model_dropdown"], upload_components["category_dropdown"]],
-            outputs=[upload_components["category_dropdown"]]
+            outputs=[upload_components["category_dropdown"]],
+            show_progress="hidden"
         )
         
         upload_components["analyze_btn"].click(
@@ -133,7 +134,8 @@ def create_app() -> gr.Blocks:
         sketch_components["model_dropdown"].change(
             fn=update_categories,
             inputs=[sketch_components["model_dropdown"], sketch_components["category_dropdown"]],
-            outputs=[sketch_components["category_dropdown"]]
+            outputs=[sketch_components["category_dropdown"]],
+            show_progress="hidden"
         )
         
         sketch_components["analyze_btn"].click(
@@ -195,7 +197,8 @@ def create_app() -> gr.Blocks:
         compare_components["model_checkboxes"].change(
             fn=update_compare_categories,
             inputs=[compare_components["model_checkboxes"], compare_components["category_dropdown"]],
-            outputs=[compare_components["category_dropdown"]]
+            outputs=[compare_components["category_dropdown"]],
+            show_progress="hidden"
         )
         
         compare_components["compare_btn"].click(
