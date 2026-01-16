@@ -16,9 +16,26 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: Push to Hugging Face Space
+      - name: Setup Git LFS and push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          git lfs install
+
+          # Configure git
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+          # Track binary files with LFS
+          git lfs track "*.png"
+          git lfs track "*.jpg"
+          git lfs track "*.jpeg"
+          git lfs track "*.gif"
+          git lfs track "*.webp"
+
+          # Migrate existing files to LFS
+          git lfs migrate import --include="*.png,*.jpg,*.jpeg,*.gif,*.webp" --everything
+
+          # Push to HF
           git remote add hf https://micguida1:$HF_TOKEN@huggingface.co/spaces/micguida1/mvtec-anomaly-benchmark
           git push hf main:main --force
