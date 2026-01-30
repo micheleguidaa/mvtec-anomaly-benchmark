@@ -34,12 +34,6 @@ from core import (
 
 logger = logging.getLogger(__name__)
 
-# =============================================================================
-# EFFICIENTAD MONKEY-PATCH
-# =============================================================================
-# Override the pretrained weights directory to keep everything inside
-# efficientad_resources/ instead of the hardcoded ./pre_trained/
-
 EFFICIENTAD_RESOURCES_DIR = Path(__file__).parent / "efficientad_resources"
 
 def _patched_prepare_pretrained_model(self) -> None:
@@ -66,12 +60,8 @@ def patch_efficientad():
     """Apply monkey-patch to EfficientAd to use custom pretrained weights directory."""
     from anomalib.models import EfficientAd
     EfficientAd.prepare_pretrained_model = _patched_prepare_pretrained_model
-    print(f"   ℹ️  EfficientAd: Pretrained weights will be saved to {EFFICIENTAD_RESOURCES_DIR / 'pre_trained'}")
+    print(f"   [INFO] EfficientAd: Pretrained weights directory: {EFFICIENTAD_RESOURCES_DIR / 'pre_trained'}")
 
-
-# =============================================================================
-# METRICS FUNCTIONS
-# =============================================================================
 
 def save_metrics(category_metrics, category, model_name):
     """Saves metrics in the Anomalib directory structure."""
@@ -95,7 +85,7 @@ def save_metrics(category_metrics, category, model_name):
     version_json_path = version_dir / "metrics.json"
     with open(version_json_path, 'w', encoding='utf-8') as f:
         json.dump(category_metrics, f, indent=2, ensure_ascii=False)
-    print(f"   💾 Saved: {version_json_path}")
+    print(f"   Saved: {version_json_path}")
     
     # Save in latest (only if it exists)
     latest_dir = category_base_dir / "latest"
@@ -107,7 +97,7 @@ def save_metrics(category_metrics, category, model_name):
 
 def print_category_metrics(metrics):
     """Prints metrics for a category."""
-    print(f"\n📊 Metrics:")
+    print(f"\n[METRICS]")
     print(f"   EFFICACY:   AUROC img={format_metric(metrics['image_auroc'])} | "
           f"AUROC pix={format_metric(metrics['pixel_auroc'])} | "
           f"F1={format_metric(metrics['image_f1'])}")
@@ -123,7 +113,7 @@ def print_final_report(all_metrics, model_name):
         return
         
     print(f"\n{'='*100}")
-    print(f"📊 FINAL REPORT - {model_name.upper()} PERFORMANCE METRICS")
+    print(f"FINAL REPORT - {model_name.upper()} PERFORMANCE METRICS")
     print(f"{'='*100}\n")
     
     # Header
@@ -157,14 +147,10 @@ def print_final_report(all_metrics, model_name):
     print(f"\n{'='*100}")
 
 
-# =============================================================================
-# MAIN TRAINING FUNCTION
-# =============================================================================
-
 def train_category(category, model_name):
     """Runs training, test, and calculates metrics for a category."""
     print(f"\n{'='*60}")
-    print(f"🚀 Training: {category} ({model_name})")
+    print(f"Training: {category} ({model_name})")
     print(f"{'='*60}")
     
     # Load config
@@ -181,11 +167,10 @@ def train_category(category, model_name):
     
     # EfficientAd-specific setup
     if model_name == "efficientad":
-        patch_efficientad()  # Redirect pretrained weights to efficientad_resources/
-        # Override imagenet_dir to use absolute path inside efficientad_resources/
+        patch_efficientad()
         model_params["imagenet_dir"] = str(EFFICIENTAD_RESOURCES_DIR / "imagenette")
-        print(f"   ℹ️  EfficientAd: ImageNet data will be saved to {EFFICIENTAD_RESOURCES_DIR / 'imagenette'}")
-        print("   ℹ️  EfficientAd: Disabling image visualization (saving storage)")
+        print(f"   [INFO] EfficientAd: ImageNet directory: {EFFICIENTAD_RESOURCES_DIR / 'imagenette'}")
+        print("   [INFO] EfficientAd: Image visualization disabled")
         model_params["visualizer"] = False
         
     model = model_class(**model_params)
@@ -222,14 +207,10 @@ def train_category(category, model_name):
     # Output and save
     print_category_metrics(category_metrics)
     save_metrics(category_metrics, category, model_name)
-    print(f"\n✓ Completed: {category}\n")
+    print(f"\nCompleted: {category}\n")
     
     return category_metrics
 
-
-# =============================================================================
-# MAIN
-# =============================================================================
 
 def parse_args():
     """Parse command line arguments."""
@@ -262,37 +243,32 @@ Examples:
 def main():
     args = parse_args()
     
-    # Determine categories
     if args.category == "all":
         categories = MVTEC_CATEGORIES
-        print(f"🔄 Training on ALL {len(categories)} categories")
+        print(f"Training on ALL {len(categories)} categories")
     else:
         categories = [args.category]
-        print(f"🎯 Training on: {args.category}")
+        print(f"Training on: {args.category}")
     
-    # Determine models
     if args.model == "all":
         models = get_available_models()
-        print(f"📦 Models: ALL ({', '.join(models)})")
+        print(f"Models: ALL ({', '.join(models)})")
     else:
         models = [args.model]
-        print(f"📦 Model: {args.model}")
+        print(f"Model: {args.model}")
 
-    # Create results directory
     DIR_RESULTS.mkdir(parents=True, exist_ok=True)
     
-    # Training loop
     all_metrics = []
     for model_name in models:
         if len(models) > 1:
-            print(f"\n{'#'*60}")
-            print(f"# MODEL: {model_name.upper()}")
-            print(f"{'#'*60}")
+            print(f"\n{'='*60}")
+            print(f"MODEL: {model_name.upper()}")
+            print(f"{'='*60}")
         
         model_metrics = [train_category(cat, model_name) for cat in categories]
         all_metrics.extend(model_metrics)
         
-        # Final Report per model
         print_final_report(model_metrics, model_name)
 
 
