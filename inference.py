@@ -120,7 +120,7 @@ def visualize_results(results: dict, output_dir: Path = None) -> str:
     if is_efficientad and is_good:
         anomaly_map = anomaly_map * 0.3
         show_mask_contours = False
-        print(f"[INFO] EfficientAD: Good image detected - scaling heatmap to low values")s")
+        print(f"[INFO] EfficientAD: Good image detected - scaling heatmap to low values")
     
     if pred_mask is not None:
         if pred_mask.ndim == 3:
